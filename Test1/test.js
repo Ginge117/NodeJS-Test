@@ -20,7 +20,9 @@ function handleResults(error, value, time) {
     }
 }
 
-doAThing(1, handleResults);
-doAThing(2, handleResults);
-doAThing(3, handleResults);
-doAThing(4, handleResults);
+function doWhatIwant(callback) {
+    doAThing(1, handleResults);
+    doAThing(2, handleResults);
+    doAThing(3, handleResults);
+    doAThing(4, handleResults);
+}
