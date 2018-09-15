@@ -1,6 +1,7 @@
 var http = require("http");
 var fs = require("fs");
 var mapping = fs.readFileSync("./mapping.json");
+var xmlParser = require("xml2js");
 mapping = JSON.parse(mapping.toString());
 mapping.maps.push(new PathMap("/firstpath", respondWithFile));
 http.createServer(function(req, res) {
