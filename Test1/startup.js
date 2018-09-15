@@ -1,35 +1,34 @@
 var http = require("http");
 var fs = require("fs");
-var mapping = fs.readFileSync("./mapping.json");
 var xmlParser = require("xml2js");
-mapping = JSON.parse(mapping.toString());
-mapping.maps.push(new PathMap("/firstpath", respondWithFile));
-http.createServer(function(req, res) {
-    mapResponse(req, res);
-}).listen(process.env.PORT, process.env.IP);
+var mapping = require("./createMapping.js");
 
+function createWebServer(mappings) {
+    http.createServer(function(req, res) {
+        mapResponse(req, res, mappings);
+    }).listen(process.env.PORT, process.env.IP);
+    console.log("Server Started!");
+    console.log("Location: " + process.env.IP + ":" + process.env.PORT);
+}
 
-console.log("Server Started!");
-console.log("Location: " + process.env.IP + ":" + process.env.PORT);
-
-function mapResponse(req, res) {
+function mapResponse(req, res, mappings) {
     console.log("Mapping Request: " + req.url);
     var map;
     var found = false;
-    for (var i = 0; i < mapping.maps.length; i++) {
-        map = mapping.maps[i];
-        console.log("Adding Mapping: " + map.path);
+    for (var i = 0; i < mapping.length; i++) {
+        map = mapping[i];
+        console.log("Adding Mapping: " + map);
         console.log(req.url);
-        if (req.url === map.path) {
+        if (req.url === "/" + map) {
             console.log("Found");
             var found = true;
-            map.method(req, res);
+            respondWithFile(req, res, map);
         }
     }
     if (!found) {
         console.log("Not Found");
         res.writeHead(404, { "Content-Type": "text/html" });
-        var html = fs.createReadStream("./404.html");
+        var html = fs.createReadStream("./errorpages/404.html");
         html.pipe(res);
     }
 }
@@ -45,9 +44,9 @@ function readFile(filePath, callback) {
     });
 }
 
-function respondWithFile(req, res) {
+function respondWithFile(req, res, path) {
     res.writeHead(200, { "Content-Type": "text/plain" });
-    var file = fs.createReadStream("./page.html");
+    var file = fs.createReadStream("./pages/" + path);
     file.pipe(res);
     file.on("end", function() {
         res.close;
