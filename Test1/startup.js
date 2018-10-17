@@ -1,9 +1,24 @@
 var http = require("http");
 var fs = require("fs");
 var xmlParser = require("xml2js");
-var mapping = require("./createMapping.js");
+
+
+function startTheThing(callback) {
+    fs.readdir("./pages", function(err, contents) {
+        if (err) {
+            console.error(err);
+        } else {
+            callback(contents);
+        }
+    });
+}
+
+function main() {
+    startTheThing(createWebServer);
+}
 
 function createWebServer(mappings) {
+    console.log(mappings);
     http.createServer(function(req, res) {
         mapResponse(req, res, mappings);
     }).listen(process.env.PORT, process.env.IP);
@@ -11,7 +26,7 @@ function createWebServer(mappings) {
     console.log("Location: " + process.env.IP + ":" + process.env.PORT);
 }
 
-function mapResponse(req, res, mappings) {
+function mapResponse(req, res, mapping) {
     console.log("Mapping Request: " + req.url);
     var map;
     var found = false;
@@ -19,7 +34,7 @@ function mapResponse(req, res, mappings) {
         map = mapping[i];
         console.log("Adding Mapping: " + map);
         console.log(req.url);
-        if (req.url === "/" + map) {
+        if (req.url == "/" + map) {
             console.log("Found");
             var found = true;
             respondWithFile(req, res, map);
@@ -57,3 +72,5 @@ function PathMap(path, method) {
     this.path = path;
     this.method = method;
 }
+
+main();

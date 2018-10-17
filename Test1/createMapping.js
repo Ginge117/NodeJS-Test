@@ -5,7 +5,7 @@ function startTheThing(callback) {
         if (err) {
             console.error(err);
         } else {
-            console.log(contents);
+            callback(contents);
         }
     });
 }
