@@ -1,7 +1,5 @@
 var http = require("http");
 var fs = require("fs");
-var xmlParser = require("xml2js");
-
 
 function startTheThing(callback) {
     fs.readdir("./pages", function(err, contents) {
@@ -20,10 +18,19 @@ function main() {
 function createWebServer(mappings) {
     console.log(mappings);
     http.createServer(function(req, res) {
-        mapResponse(req, res, mappings);
+        if (req.url.match(/.html/)) {
+            mapResponse(req, res, mappings);
+        } else {
+            console.log("None HTML file");
+            notFound(res);
+        }
     }).listen(process.env.PORT, process.env.IP);
     console.log("Server Started!");
     console.log("Location: " + process.env.IP + ":" + process.env.PORT);
+}
+
+function mapWebService(req, res) {
+
 }
 
 function mapResponse(req, res, mapping) {
@@ -41,11 +48,15 @@ function mapResponse(req, res, mapping) {
         }
     }
     if (!found) {
-        console.log("Not Found");
-        res.writeHead(404, { "Content-Type": "text/html" });
-        var html = fs.createReadStream("./errorpages/404.html");
-        html.pipe(res);
+        notFound(res);
     }
+}
+
+function notFound(res) {
+    console.log("Not Found");
+    res.writeHead(404, { "Content-Type": "text/html" });
+    var html = fs.createReadStream("./errorpages/404.html");
+    html.pipe(res);
 }
 
 function readFile(filePath, callback) {
@@ -66,11 +77,6 @@ function respondWithFile(req, res, path) {
     file.on("end", function() {
         res.close;
     });
-}
-
-function PathMap(path, method) {
-    this.path = path;
-    this.method = method;
 }
 
 main();
